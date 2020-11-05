@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_app/Screens/sign_up.dart';
 import 'package:flutter_chat_app/widgets/theme.dart';
 import 'package:flutter_chat_app/widgets/widgets.dart';
 
@@ -105,12 +106,20 @@ class _SignInState extends State<SignIn> {
                     "Don't have account? ",
                     style: simpleTextStyle(),
                   ),
-                  Text(
-                    "Register now",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        decoration: TextDecoration.underline),
+                  InkWell(
+                    onTap: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Signup()),
+                      );
+                    },
+                    child: Text(
+                      "Register now",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          decoration: TextDecoration.underline),
+                    ),
                   ),
                 ],
               ),

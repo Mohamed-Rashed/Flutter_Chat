@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_app/Services/auth.dart';
 import 'package:flutter_chat_app/widgets/theme.dart';
 import 'package:flutter_chat_app/widgets/widgets.dart';
 
@@ -8,11 +9,36 @@ class Signup extends StatefulWidget {
 }
 
 class _SignupState extends State<Signup> {
+  final formKey = GlobalKey<FormState>();
+  bool isLoading = false;
+  AuthService authService = AuthService();
+  TextEditingController emailEditingController = new TextEditingController();
+  TextEditingController passwordEditingController = new TextEditingController();
+  TextEditingController usernameEditingController = new TextEditingController();
+
+  singUp() async {
+
+    if(formKey.currentState.validate()){
+      setState(() {
+
+        isLoading = true;
+      });
+
+      await authService.signUpWithEmailAndPassword(emailEditingController.text,
+          passwordEditingController.text).then((val){
+            print("${val}");
+
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBarMain(context),
-      body: SingleChildScrollView(
+      body: isLoading ?Container(
+        child: Center(child: CircularProgressIndicator()),
+      ) :SingleChildScrollView(
         child: Container(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
@@ -20,50 +46,46 @@ class _SignupState extends State<Signup> {
           child: Column(
             children: [
               Form(
+                key: formKey,
                 child: Column(
                   children: [
                     TextFormField(
+                      validator: (val){
+                        return RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(val) ?
+                        null : "Enter correct email";
+                      },
                       style: simpleTextStyle(),
                       decoration: textFieldInputDecoration("Email"),
+                      controller: emailEditingController,
                     ),
                     TextFormField(
+
+                      validator: (val){
+                        return val.isEmpty || val.length < 3 ? "Enter Username 3+ characters" : null;
+                      },
                       style: simpleTextStyle(),
                       decoration: textFieldInputDecoration("User Name"),
+                      controller: usernameEditingController,
                     ),
                     TextFormField(
                       obscureText: true,
-                      validator: (val) {
-                        return val.length > 6
-                            ? null
-                            : "Enter Password 6+ characters";
+                      validator:  (val){
+                        return val.length < 6 ? "Enter Password 6+ characters" : null;
                       },
                       style: simpleTextStyle(),
                       decoration: textFieldInputDecoration("password"),
+                      controller: passwordEditingController,
                     ),
                   ],
                 ),
               ),
               SizedBox(
-                height: 16,
+                height: 26,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      child: Text(
-                        "Forgot Password?",
-                        style: simpleTextStyle(),
-                      )),
-                ],
-              ),
-              SizedBox(
-                height: 16,
-              ),
+
               GestureDetector(
                 onTap: () {
-                  //TODO
+                  singUp();
                 },
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 16),
@@ -77,7 +99,7 @@ class _SignupState extends State<Signup> {
                       )),
                   width: MediaQuery.of(context).size.width,
                   child: Text(
-                    "Sign In",
+                    "Sign Up",
                     style: biggerTextStyle(),
                     textAlign: TextAlign.center,
                   ),
@@ -93,7 +115,7 @@ class _SignupState extends State<Signup> {
                     color: Colors.white),
                 width: MediaQuery.of(context).size.width,
                 child: Text(
-                  "Sign In with Google",
+                  "Sign Up with Google",
                   style:
                   TextStyle(fontSize: 17, color: CustomTheme.textColor),
                   textAlign: TextAlign.center,
@@ -106,11 +128,11 @@ class _SignupState extends State<Signup> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Don't have account? ",
+                    "Already have account? ",
                     style: simpleTextStyle(),
                   ),
                   Text(
-                    "Register now",
+                    "Sign In now",
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 16,
