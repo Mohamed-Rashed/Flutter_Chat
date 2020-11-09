@@ -4,6 +4,8 @@ import 'package:flutter_chat_app/widgets/theme.dart';
 import 'package:flutter_chat_app/widgets/widgets.dart';
 
 class SignIn extends StatefulWidget {
+  final Function toggleView;
+  SignIn(this.toggleView);
   @override
   _SignInState createState() => _SignInState();
 }
@@ -108,10 +110,7 @@ class _SignInState extends State<SignIn> {
                   ),
                   InkWell(
                     onTap: (){
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => Signup()),
-                      );
+                      widget.toggleView();
                     },
                     child: Text(
                       "Register now",

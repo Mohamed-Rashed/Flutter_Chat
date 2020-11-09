@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_app/Screens/chatroomscreen.dart';
 import 'package:flutter_chat_app/Services/auth.dart';
+import 'package:flutter_chat_app/Services/database.dart';
 import 'package:flutter_chat_app/widgets/theme.dart';
 import 'package:flutter_chat_app/widgets/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class Signup extends StatefulWidget {
+  final Function toggleView;
+  Signup(this.toggleView);
   @override
   _SignupState createState() => _SignupState();
 }
@@ -12,6 +17,7 @@ class _SignupState extends State<Signup> {
   final formKey = GlobalKey<FormState>();
   bool isLoading = false;
   AuthService authService = AuthService();
+  DatabaseMethods _databaseMethods = DatabaseMethods();
   TextEditingController emailEditingController = new TextEditingController();
   TextEditingController passwordEditingController = new TextEditingController();
   TextEditingController usernameEditingController = new TextEditingController();
@@ -19,14 +25,34 @@ class _SignupState extends State<Signup> {
   singUp() async {
 
     if(formKey.currentState.validate()){
-      setState(() {
-
-        isLoading = true;
-      });
-
-      await authService.signUpWithEmailAndPassword(emailEditingController.text,
-          passwordEditingController.text).then((val){
-            print("${val}");
+      await authService.signUpWithEmailAndPassword(
+          emailEditingController.text,
+          passwordEditingController.text).then((val) {
+           // print("fdfdfsdfd ${val}");
+            if(val == null){
+              Fluttertoast.showToast(
+                  msg: "The email address is already in use by another account",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.CENTER,
+                  timeInSecForIosWeb: 1,
+                  backgroundColor: Colors.red,
+                  textColor: Colors.white,
+                  fontSize: 16.0
+              );
+            }
+            else{
+              setState(() {
+                isLoading = true;
+              });
+              Map<String , String> userInfoMap= {
+                'name' : usernameEditingController.text,
+                'email' : emailEditingController.text
+              };
+              _databaseMethods.addUserInfo(userInfoMap);
+              Navigator.pushReplacement(context, MaterialPageRoute(
+                  builder: (context) => ChatRoom()
+              ));
+            }
 
       });
     }
@@ -131,12 +157,17 @@ class _SignupState extends State<Signup> {
                     "Already have account? ",
                     style: simpleTextStyle(),
                   ),
-                  Text(
-                    "Sign In now",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        decoration: TextDecoration.underline),
+                  GestureDetector(
+                    onTap: (){
+                      widget.toggleView();
+                    },
+                    child: Text(
+                      "Sign In now",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          decoration: TextDecoration.underline),
+                    ),
                   ),
                 ],
               ),
