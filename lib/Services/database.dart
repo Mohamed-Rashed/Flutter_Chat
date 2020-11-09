@@ -10,7 +10,7 @@ class DatabaseMethods {
   getUserInfo(String email) async {
     return Firestore.instance
         .collection("users")
-        .where("userEmail", isEqualTo: email)
+        .where("email", isEqualTo: email)
         .getDocuments()
         .catchError((e) {
       print(e.toString());
@@ -20,7 +20,7 @@ class DatabaseMethods {
   searchByName(String searchField) {
     return Firestore.instance
         .collection("users")
-        .where('userName', isEqualTo: searchField)
+        .where('name', isEqualTo: searchField)
         .getDocuments();
   }
 

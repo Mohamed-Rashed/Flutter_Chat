@@ -40,8 +40,8 @@ class _SearchState extends State<Search> {
         itemCount: searchResultSnapshot.documents.length,
         itemBuilder: (context, index){
           return userTile(
-            searchResultSnapshot.documents[index].data["userName"],
-            searchResultSnapshot.documents[index].data["userEmail"],
+            searchResultSnapshot.documents[index].data["name"],
+            searchResultSnapshot.documents[index].data["email"],
           );
         }) : Container();
   }
