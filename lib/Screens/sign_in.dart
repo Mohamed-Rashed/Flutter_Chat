@@ -1,7 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_app/Helper/helper_functions.dart';
 import 'package:flutter_chat_app/Screens/sign_up.dart';
+import 'package:flutter_chat_app/Services/auth.dart';
+import 'package:flutter_chat_app/Services/database.dart';
 import 'package:flutter_chat_app/widgets/theme.dart';
 import 'package:flutter_chat_app/widgets/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+import 'chatroomscreen.dart';
 
 class SignIn extends StatefulWidget {
   final Function toggleView;
@@ -11,11 +18,56 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
+  TextEditingController emailEditingController = new TextEditingController();
+  TextEditingController passwordEditingController = new TextEditingController();
+  final formKey = GlobalKey<FormState>();
+  AuthService authService = new AuthService();
+
+
+  bool isLoading = false;
+
+  signIn() async {
+    if (formKey.currentState.validate()) {
+      setState(() {
+        isLoading = true;
+      });
+
+      await authService.signInWithEmailAndPassword(emailEditingController.text, passwordEditingController.text).then((result) async {
+        if (result != null)  {
+          QuerySnapshot userInfoSnapshot = await DatabaseMethods().getUserInfo(emailEditingController.text);
+
+          HelperFunctions.saveUserLoggedInSharedPreference(true);
+          HelperFunctions.saveUserNameSharedPreference(userInfoSnapshot.documents[0].data["name"]);
+          HelperFunctions.saveUserEmailSharedPreference(userInfoSnapshot.documents[0].data["email"]);
+
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => ChatRoom()));
+        } else {
+          setState(() {
+            isLoading = false;
+            Fluttertoast.showToast(
+                msg: "The email or password maybe wrong try again",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.CENTER,
+                timeInSecForIosWeb: 1,
+                backgroundColor: Colors.red,
+                textColor: Colors.white,
+                fontSize: 16.0
+            );
+          });
+        }
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBarMain(context),
-      body: SingleChildScrollView(
+      body: isLoading
+          ? Container(
+        child: Center(child: CircularProgressIndicator()),
+      )
+          : SingleChildScrollView(
         child: Container(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
@@ -23,18 +75,24 @@ class _SignInState extends State<SignIn> {
           child: Column(
             children: [
               Form(
+                key: formKey,
                 child: Column(
                   children: [
                     TextFormField(
                       style: simpleTextStyle(),
+                      controller: emailEditingController,
                       decoration: textFieldInputDecoration("Email"),
+                      validator: (val){
+                        return RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(val) ?
+                        null : "Enter correct email";
+                      },
                     ),
                     TextFormField(
                       obscureText: true,
-                      validator: (val) {
-                        return val.length > 6
-                            ? null
-                            : "Enter Password 6+ characters";
+                      controller: passwordEditingController,
+
+                      validator:  (val){
+                        return val.length < 6 ? "Enter Password 6+ characters" : null;
                       },
                       style: simpleTextStyle(),
                       decoration: textFieldInputDecoration("password"),
@@ -62,7 +120,7 @@ class _SignInState extends State<SignIn> {
               ),
               GestureDetector(
                 onTap: () {
-                  //TODO
+                  signIn();
                 },
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 16),

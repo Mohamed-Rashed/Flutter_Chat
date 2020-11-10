@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_app/Helper/helper_functions.dart';
 import 'package:flutter_chat_app/Screens/chatroomscreen.dart';
 import 'package:flutter_chat_app/Services/auth.dart';
 import 'package:flutter_chat_app/Services/database.dart';
@@ -48,6 +49,9 @@ class _SignupState extends State<Signup> {
                 'name' : usernameEditingController.text,
                 'email' : emailEditingController.text
               };
+              HelperFunctions.saveUserLoggedInSharedPreference(true);
+              HelperFunctions.saveUserNameSharedPreference(usernameEditingController.text);
+              HelperFunctions.saveUserEmailSharedPreference(emailEditingController.text);
               _databaseMethods.addUserInfo(userInfoMap);
               Navigator.pushReplacement(context, MaterialPageRoute(
                   builder: (context) => ChatRoom()

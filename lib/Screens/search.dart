@@ -1,7 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_app/Helper/constants.dart';
 import 'package:flutter_chat_app/Services/database.dart';
 import 'package:flutter_chat_app/widgets/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+import 'chat.dart';
 
 class Search extends StatefulWidget {
   @override
@@ -47,25 +51,38 @@ class _SearchState extends State<Search> {
   }
 
   /// 1.create a chatroom, send user to the chatroom, other userdetails
-  /*sendMessage(String userName){
-    List<String> users = [Constants.myName,userName];
+  sendMessage(String userName){
+    if(userName != Constants.myName){
+      List<String> users = [Constants.myName,userName];
 
-    String chatRoomId = getChatRoomId(Constants.myName,userName);
+      String chatRoomId = getChatRoomId(Constants.myName,userName);
 
-    Map<String, dynamic> chatRoom = {
-      "users": users,
-      "chatRoomId" : chatRoomId,
-    };
+      Map<String, dynamic> chatRoom = {
+        "users": users,
+        "chatRoomId" : chatRoomId,
+      };
 
-    databaseMethods.addChatRoom(chatRoom, chatRoomId);
+      databaseMethods.addChatRoom(chatRoom, chatRoomId);
 
-    Navigator.push(context, MaterialPageRoute(
-        builder: (context) => Chat(
-          chatRoomId: chatRoomId,
-        )
-    ));
+      Navigator.push(context, MaterialPageRoute(
+          builder: (context) => Chat(
+            chatRoomId: chatRoomId,
+          )
+      ));
+    }else{
+      Fluttertoast.showToast(
+          msg: "Can't send message to yourself",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
+    }
 
-  }*/
+
+  }
 
   Widget userTile(String userName,String userEmail){
     return Container(
@@ -94,7 +111,7 @@ class _SearchState extends State<Search> {
           Spacer(),
           GestureDetector(
             onTap: (){
-              /*sendMessage(userName);*/
+              sendMessage(userName);
             },
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 12,vertical: 8),
